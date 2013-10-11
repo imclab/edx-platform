@@ -64,16 +64,23 @@ function () {
 
         if (_.indexOf(this.config.availableQualities, value) !== -1) {
             controlStateStr = gettext('HD on');
-            this.videoQualityControl.el.addClass('active');
-            this.videoQualityControl.el.attr('title', controlStateStr)
-                                       .attr('aria-label', controlStateStr)
-                                       .text(controlStateStr);
+            this.videoQualityControl.el
+                                    .addClass('active')
+                                    .attr({
+                                        'title': controlStateStr,
+                                        'aria-label': controlStateStr
+                                    })
+                                    .text(controlStateStr);
         } else {
             controlStateStr = gettext('HD off');
-            this.videoQualityControl.el.removeClass('active');
-            this.videoQualityControl.el.attr('title', controlStateStr)
-                                       .attr('aria-label', controlStateStr)
-                                       .text(controlStateStr);
+            this.videoQualityControl.el
+                                    .removeClass('active')
+                                    .attr({
+                                        'title': controlStateStr,
+                                        'aria-label': controlStateStr
+                                    })
+                                    .text(controlStateStr);
+
         }
     }       
 
