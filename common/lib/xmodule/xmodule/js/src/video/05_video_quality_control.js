@@ -64,10 +64,12 @@ function () {
         if (_.indexOf(this.config.availableQualities, value) !== -1) {
             this.videoQualityControl.el.addClass('active');
             this.videoQualityControl.el.attr('title', gettext('HD on'))
+                                       .attr('aria-label', gettext('HD on'))
                                        .text(gettext('HD on'));
         } else {
             this.videoQualityControl.el.removeClass('active');
             this.videoQualityControl.el.attr('title', gettext('HD off'))
+                                       .attr('aria-label', gettext('HD off'))
                                        .text(gettext('HD off'));
         }
     }       
