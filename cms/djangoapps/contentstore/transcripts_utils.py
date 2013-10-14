@@ -23,6 +23,9 @@ from .utils import get_modulestore
 log = logging.getLogger(__name__)
 
 
+class TranscriptsGenerationException(Exception):
+    pass
+
 def generate_subs(speed, source_speed, source_subs):
     """
     Generate transcripts from one speed to another speed.
@@ -204,12 +207,10 @@ def generate_subs_from_source(speed_subs, subs_type, subs_filedata, item):
     html_parser = HTMLParser.HTMLParser()
 
     if subs_type != 'srt':
-        log.error("We support only SubRip (*.srt) transcripts format.")
-        return False, {}
+        raise TranscriptsGenerationException("We support only SubRip (*.srt) transcripts format.")
     srt_subs_obj = SubRipFile.from_string(subs_filedata)
     if not srt_subs_obj:
-        log.error("Something wrong with SubRip transcripts file during parsing.")
-        return False, {}
+        raise TranscriptsGenerationException("Something wrong with SubRip transcripts file during parsing.")
 
     sub_starts = []
     sub_ends = []
@@ -231,7 +232,7 @@ def generate_subs_from_source(speed_subs, subs_type, subs_filedata, item):
             subs_id,
             item)
 
-    return True, subs
+    return subs
 
 
 def generate_srt_from_sjson(sjson_subs, speed):

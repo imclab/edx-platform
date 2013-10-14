@@ -27,7 +27,8 @@ from ..transcripts_utils import (
     download_youtube_subs, get_transcripts_from_youtube,
     copy_or_rename_transcript,
     save_module,
-    manage_video_subtitles_save
+    manage_video_subtitles_save,
+    TranscriptsGenerationException,
 )
 
 from .access import has_access
@@ -101,31 +102,23 @@ def upload_transcripts(request):
     if video_list:
         sub_attr = source_subs_name
 
-        # Assuming we uploaded subs for speed = 1.0
-        # Generate subs and save for all videos names to storage
-        status, __ = generate_subs_from_source(
-            {1: sub_attr},
-            source_subs_ext,
-            source_subs_filedata,
-            item)
-        if status:
-            statuses = {}
-            for video_dict in video_list:
-                video_name = video_dict['video']
-                # creating transcripts for every video source
-                # in case that some of them would be deleted
-                statuses[video_name] = copy_or_rename_transcript(video_name, sub_attr, item)
+        try:  # generate and save for 1.0 speed
+            generate_subs_from_source({1: sub_attr}, source_subs_ext, source_subs_filedata, item)
+        except TranscriptsGenerationException, e:
+            return log_and_return_response(response, e.message)
+        statuses = {}
+        for video_dict in video_list:
+            video_name = video_dict['video']
+            # We are creating transcripts for every video source, in case that some of video sources would be deleted.
+            statuses[video_name] = copy_or_rename_transcript(video_name, sub_attr, item)
 
-            # name to write to sub field
-            selected_name = video_list[0]['video']
+        selected_name = video_list[0]['video']  # name to write to sub field
 
-            if statuses[selected_name]:  # write names to sub attribute files
-                item.sub = selected_name
-                item = save_module(item)
-                response['subs'] = item.sub
-                response['status'] = 'Success'
-        else:
-            return log_and_return_response(response, 'Generation of transcripts from file is failed.')
+        if statuses[selected_name]:  # write names to sub attribute files
+            item.sub = selected_name
+            item = save_module(item)
+            response['subs'] = item.sub
+            response['status'] = 'Success'
     else:
         return log_and_return_response(response, 'Empty video sources.')
 

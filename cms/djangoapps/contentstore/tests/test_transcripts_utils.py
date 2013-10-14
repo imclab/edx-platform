@@ -214,12 +214,8 @@ At the left we can see...
         """
         self.clear_subs_content(youtube_subs)
 
-        status, __ = transcripts_utils.generate_subs_from_source(
-            youtube_subs,
-            'srt',
-            srt_filedata,
-            self.course)
-        self.assertTrue(status)
+        # Check transcripts_utils.TranscriptsGenerationException not thrown
+        transcripts_utils.generate_subs_from_source(youtube_subs, 'srt', srt_filedata, self.course)
 
         # Check assets status after importing subtitles.
         for subs_id in youtube_subs.values():
@@ -247,12 +243,10 @@ Elephant's Dream
 At the left we can see...
         """
 
-        status, __ = transcripts_utils.generate_subs_from_source(
-            youtube_subs,
-            'BAD_FORMAT',
-            srt_filedata,
-            self.course)
-        self.assertFalse(status)
+        with self.assertRaises(transcripts_utils.TranscriptsGenerationException) as cm:
+                transcripts_utils.generate_subs_from_source(youtube_subs, 'BAD_FORMAT', srt_filedata, self.course)
+        exception_message = cm.exception.message
+        self.assertEqual(exception_message, "We support only SubRip (*.srt) transcripts format.")
 
     def test_fail_bad_subs_filedata(self):
         youtube_subs = {
@@ -263,12 +257,10 @@ At the left we can see...
 
         srt_filedata = """BAD_DATA"""
 
-        status, __ = transcripts_utils.generate_subs_from_source(
-            youtube_subs,
-            'srt',
-            srt_filedata,
-            self.course)
-        self.assertFalse(status)
+        with self.assertRaises(transcripts_utils.TranscriptsGenerationException) as cm:
+            transcripts_utils.generate_subs_from_source(youtube_subs, 'srt', srt_filedata, self.course)
+        exception_message = cm.exception.message
+        self.assertEqual(exception_message, "Something wrong with SubRip transcripts file during parsing.")
 
 
 class TestGenerateSrtFromSjson(TestDownloadYoutubeSubs):
